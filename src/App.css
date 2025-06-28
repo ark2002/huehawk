@@ -1,6 +1,20 @@
+/* Global dark mode styles */
+html {
+  transition: background-color 0.2s ease;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.2s ease;
+}
+
 .App {
-  text-align: center;
-  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
 }
 
 .App h1 {
