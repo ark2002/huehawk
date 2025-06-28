@@ -8,6 +8,7 @@ interface ColorItemProps {
     isDarkMode: boolean;
     onCopy: (text: string, index: number) => void;
     getUsageText: (color: Color) => string;
+    onColorClick: (color: Color) => void;
 }
 
 const ColorItem: React.FC<ColorItemProps> = ({
@@ -16,8 +17,19 @@ const ColorItem: React.FC<ColorItemProps> = ({
     copiedIndex,
     isDarkMode,
     onCopy,
-    getUsageText
+    getUsageText,
+    onColorClick
 }) => {
+    const handleColorClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onColorClick(color);
+    };
+
+    const handleCopyClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onCopy(color.hex, globalIndex);
+    };
+
     return (
         <div
             className={`group rounded-lg border transition-all duration-300 hover:shadow-md hover:scale-[1.02] flex items-center gap-2.5 p-2.5 ${isDarkMode
@@ -25,17 +37,23 @@ const ColorItem: React.FC<ColorItemProps> = ({
                 : 'bg-white border-gray-200/60 hover:border-gray-300/80'
                 }`}
         >
-            {/* Color Swatch */}
+            {/* Color Swatch - Clickable for details */}
             <div
-                className={`w-10 h-10 rounded-lg border-2 shadow-sm transition-all duration-300 group-hover:shadow-md flex-shrink-0 ${isDarkMode
+                className={`w-10 h-10 rounded-lg border-2 shadow-sm transition-all duration-300 group-hover:shadow-md flex-shrink-0 cursor-pointer hover:scale-105 ${isDarkMode
                     ? 'border-gray-600/80 group-hover:border-gray-500/90'
                     : 'border-gray-200/80 group-hover:border-gray-300/90'
                     }`}
                 style={{ backgroundColor: color.hex }}
+                onClick={handleColorClick}
+                title="Click for color details"
             />
 
-            {/* Color Info */}
-            <div className="flex-1 min-w-0">
+            {/* Color Info - Clickable for details */}
+            <div
+                className="flex-1 min-w-0 cursor-pointer"
+                onClick={handleColorClick}
+                title="Click for color details"
+            >
                 <div className={`font-mono text-sm font-semibold transition-colors ${isDarkMode
                     ? 'text-gray-100 group-hover:text-gray-200'
                     : 'text-gray-900 group-hover:text-gray-800'
@@ -65,7 +83,7 @@ const ColorItem: React.FC<ColorItemProps> = ({
                         ? 'bg-gray-700 text-gray-300 hover:bg-gray-600 active:bg-gray-500 border border-gray-600/60 group-hover:border-gray-500/80 group-hover:shadow-sm'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300 border border-gray-200/60 group-hover:border-gray-300/80 group-hover:shadow-sm'
                     }`}
-                onClick={() => onCopy(color.hex, globalIndex)}
+                onClick={handleCopyClick}
             >
                 {copiedIndex === globalIndex ? 'Copied!' : 'Copy'}
             </button>

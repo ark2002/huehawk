@@ -35,6 +35,15 @@ body {
   .scrollbar-track-gray-800 {
     scrollbar-color: transparent #1f2937;
   }
+
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Webkit scrollbar styles */

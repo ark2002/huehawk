@@ -3,7 +3,9 @@ import Header from './Header';
 import ExtractButton from './ExtractButton';
 import StatusMessage from './StatusMessage';
 import ColorGroup from './ColorGroup';
+import ColorDetailsModal from './ColorDetailsModal';
 import type { Color, ColorGroup as ColorGroupType, Status } from '../types/Color';
+import { generateCSSPalette } from '../utils/colorUtils';
 
 interface PopupProps {
     isDarkMode: boolean;
@@ -16,6 +18,24 @@ const Popup: React.FC<PopupProps> = ({ isDarkMode, setIsDarkMode }) => {
     const [status, setStatus] = useState<Status | null>(null);
     const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+    // Modal state
+    const [selectedColor, setSelectedColor] = useState<Color | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Load dark mode preference from storage on component mount
+    useEffect(() => {
+        chrome.storage.sync.get(['isDarkMode'], (result) => {
+            if (result.isDarkMode !== undefined) {
+                setIsDarkMode(result.isDarkMode);
+            }
+        });
+    }, [setIsDarkMode]);
+
+    // Save dark mode preference to storage whenever it changes
+    useEffect(() => {
+        chrome.storage.sync.set({ isDarkMode });
+    }, [isDarkMode]);
 
     // Group colors by usage context
     const colorGroups: ColorGroupType[] = [
@@ -93,6 +113,29 @@ const Popup: React.FC<PopupProps> = ({ isDarkMode, setIsDarkMode }) => {
         }
     };
 
+    const copyEntirePalette = async () => {
+        try {
+            const cssPalette = generateCSSPalette(colors);
+            await navigator.clipboard.writeText(cssPalette);
+            setStatus({ message: 'Entire palette copied to clipboard!', type: 'success' });
+        } catch (error) {
+            console.error('Failed to copy palette:', error);
+            setStatus({ message: 'Failed to copy palette.', type: 'error' });
+        }
+    };
+
+    // Handle color click to open modal
+    const handleColorClick = (color: Color) => {
+        setSelectedColor(color);
+        setIsModalOpen(true);
+    };
+
+    // Handle modal close
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        setSelectedColor(null);
+    };
+
     // Clear status after 3 seconds
     useEffect(() => {
         if (status && status.type !== 'loading') {
@@ -118,47 +161,60 @@ const Popup: React.FC<PopupProps> = ({ isDarkMode, setIsDarkMode }) => {
     };
 
     return (
-        <div className={`w-96 h-[400px] font-sans flex flex-col shadow-xl rounded-xl border transition-colors duration-200 ${isDarkMode
-            ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100 border-gray-700/50'
-            : 'bg-gradient-to-br from-slate-50 to-gray-100 text-gray-900 border-gray-200/50'
-            }`}>
-            <Header isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+        <>
+            <div className={`w-96 h-[400px] font-sans flex flex-col shadow-xl rounded-xl border transition-colors duration-200 ${isDarkMode
+                ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100 border-gray-700/50'
+                : 'bg-gradient-to-br from-slate-50 to-gray-100 text-gray-900 border-gray-200/50'
+                }`}>
+                <Header isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
-            {/* Content */}
-            <div className="px-1 py-1 flex-1 flex flex-col min-h-0">
-                <ExtractButton
-                    isExtracting={isExtracting}
-                    isDarkMode={isDarkMode}
-                    onExtract={extractColors}
-                />
+                {/* Content */}
+                <div className="px-1 py-1 flex-1 flex flex-col min-h-0">
+                    <ExtractButton
+                        isExtracting={isExtracting}
+                        isDarkMode={isDarkMode}
+                        onExtract={extractColors}
+                        hasColors={colors.length > 0}
+                        onCopyPalette={copyEntirePalette}
+                    />
 
-                <StatusMessage status={status} isDarkMode={isDarkMode} />
+                    <StatusMessage status={status} isDarkMode={isDarkMode} />
 
-                {/* Colors Container */}
-                <div className={`mt-1 flex-1 overflow-y-auto ${isDarkMode
-                    ? 'scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800'
-                    : 'scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'
-                    }`}>
-                    <div className="space-y-1.5">
-                        {colorGroups.map((group, groupIndex) => (
-                            <ColorGroup
-                                key={groupIndex}
-                                name={group.name}
-                                colors={group.colors}
-                                icon={group.icon}
-                                isExpanded={expandedGroups.has(group.name)}
-                                isDarkMode={isDarkMode}
-                                copiedIndex={copiedIndex}
-                                onToggle={() => toggleGroup(group.name)}
-                                onCopy={copyToClipboard}
-                                getUsageText={getUsageText}
-                                getGlobalIndex={getGlobalIndex}
-                            />
-                        ))}
+                    {/* Colors Container */}
+                    <div className={`mt-1 flex-1 overflow-y-auto ${isDarkMode
+                        ? 'scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800'
+                        : 'scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'
+                        }`}>
+                        <div className="space-y-1.5">
+                            {colorGroups.map((group, groupIndex) => (
+                                <ColorGroup
+                                    key={groupIndex}
+                                    name={group.name}
+                                    colors={group.colors}
+                                    icon={group.icon}
+                                    isExpanded={expandedGroups.has(group.name)}
+                                    isDarkMode={isDarkMode}
+                                    copiedIndex={copiedIndex}
+                                    onToggle={() => toggleGroup(group.name)}
+                                    onCopy={copyToClipboard}
+                                    getUsageText={getUsageText}
+                                    getGlobalIndex={getGlobalIndex}
+                                    onColorClick={handleColorClick}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            {/* Color Details Modal */}
+            <ColorDetailsModal
+                color={selectedColor}
+                isOpen={isModalOpen}
+                onClose={handleModalClose}
+                isDarkMode={isDarkMode}
+            />
+        </>
     );
 };
 

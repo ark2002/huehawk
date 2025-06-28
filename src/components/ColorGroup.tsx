@@ -13,6 +13,7 @@ interface ColorGroupProps {
     onCopy: (text: string, index: number) => void;
     getUsageText: (color: Color) => string;
     getGlobalIndex: (color: Color) => number;
+    onColorClick: (color: Color) => void;
 }
 
 const ColorGroup: React.FC<ColorGroupProps> = ({
@@ -25,7 +26,8 @@ const ColorGroup: React.FC<ColorGroupProps> = ({
     onToggle,
     onCopy,
     getUsageText,
-    getGlobalIndex
+    getGlobalIndex,
+    onColorClick
 }) => {
     return (
         <div className={`backdrop-blur-sm border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 ${isDarkMode
@@ -77,6 +79,7 @@ const ColorGroup: React.FC<ColorGroupProps> = ({
                                 isDarkMode={isDarkMode}
                                 onCopy={onCopy}
                                 getUsageText={getUsageText}
+                                onColorClick={onColorClick}
                             />
                         ))}
                     </div>

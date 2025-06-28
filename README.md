@@ -11,6 +11,15 @@ A powerful Chrome extension that extracts and analyzes color palettes from any w
 - **One-Click Copy**: Copy color values in HEX format with visual feedback
 - **Accordion Interface**: Expandable color groups for better organization
 
+### 🔍 **Color Details Modal** (NEW!)
+- **Click to Explore**: Click any color to open a detailed analysis modal
+- **Multiple Copy Formats**: Copy colors in HEX, RGB, HSL, CSS variables, and Tailwind formats
+- **Color Analysis**: View brightness, saturation, hue, and contrast ratios
+- **Accessibility Checking**: WCAG AA/AAA compliance indicators
+- **Color Variations**: Generate lighter and darker shades automatically
+- **Color Names**: Human-readable color names and descriptions
+- **Interactive Variations**: Click color variations to copy them instantly
+
 ### 🌙 Dark Mode
 - **Seamless Theme Switching**: Toggle between light and dark modes with a single click
 - **Custom Scrollbars**: Beautiful scrollbars that adapt to the theme
@@ -67,9 +76,12 @@ huehawk/
 │   │   ├── StatusMessage.tsx # Status notifications
 │   │   ├── ColorItem.tsx    # Individual color display
 │   │   ├── ColorGroup.tsx   # Accordion color groups
+│   │   ├── ColorDetailsModal.tsx # Color analysis modal (NEW!)
 │   │   └── Popup.tsx        # Main popup component
 │   ├── types/               # TypeScript type definitions
 │   │   └── Color.ts         # Shared interfaces
+│   ├── utils/               # Utility functions (NEW!)
+│   │   └── colorUtils.ts    # Color analysis and conversion utilities
 │   ├── App.tsx              # Main app component
 │   ├── App.css              # Global styles
 │   └── index.css            # Tailwind and custom styles
@@ -102,6 +114,26 @@ huehawk/
 4. **Data Processing**: Groups colors by context and calculates usage statistics
 5. **UI Display**: Presents results in an organized, interactive interface
 
+### Color Details Modal
+When you click on any color, a comprehensive modal opens with:
+
+1. **Color Analysis**:
+   - Brightness, saturation, and hue values
+   - Contrast ratio calculations
+   - WCAG accessibility compliance (AA/AAA)
+
+2. **Copy Formats**:
+   - HEX: `#FF6B35`
+   - RGB: `rgb(255, 107, 53)`
+   - HSL: `hsl(15, 100%, 60%)`
+   - CSS Variable: `var(--color-ff6b35)`
+   - Tailwind: `[#FF6B35]`
+
+3. **Color Variations**:
+   - 5 lighter shades (10%, 20%, 30%, 40%, 50% lighter)
+   - 5 darker shades (10%, 20%, 30%, 40%, 50% darker)
+   - Click any variation to copy it instantly
+
 ### Color Categorization
 - **Backgrounds**: Colors used for backgrounds and containers
 - **Text & Headings**: Colors used for text content and headings
@@ -113,8 +145,9 @@ The extension uses a modular component architecture:
 - **Header**: Manages the app header and dark mode toggle
 - **ExtractButton**: Handles color extraction functionality
 - **StatusMessage**: Displays success, error, and loading states
-- **ColorItem**: Renders individual color swatches with copy functionality
+- **ColorItem**: Renders individual color swatches with copy functionality and modal trigger
 - **ColorGroup**: Manages accordion-style color groups
+- **ColorDetailsModal**: Comprehensive color analysis and multiple copy formats
 - **Popup**: Orchestrates all components and manages state
 
 ## 🔧 Configuration
@@ -124,11 +157,13 @@ The extension supports both automatic and manual dark mode:
 - Toggle via the header button (sun/moon icon)
 - Smooth transitions between themes
 - Custom scrollbars that adapt to the theme
-- Global styling that affects the entire popup
+- Global styling that affects the entire popup and modal
 
 ### Customization
 You can customize the extension by modifying:
 - Color grouping logic in `src/components/Popup.tsx`
+- Color analysis algorithms in `src/utils/colorUtils.ts`
+- Modal styling in `src/components/ColorDetailsModal.tsx`
 - Styling in `src/index.css` and component files
 - Content script behavior in `content.js`
 - Type definitions in `src/types/Color.ts`
@@ -170,13 +205,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔮 Roadmap
 
 ### Planned Features
+- [x] **Color Details Modal** - Comprehensive color analysis and multiple copy formats
 - [ ] Export to various formats (CSS, SCSS, Tailwind config)
-- [ ] Color accessibility checking (WCAG compliance)
+- [ ] Color accessibility checking (WCAG compliance) - Enhanced
 - [ ] Color harmony analysis
 - [ ] Save and share palettes
 - [ ] Integration with design tools (Figma, Sketch)
 - [ ] Advanced filtering and sorting options
-- [ ] Color name suggestions
+- [ ] Color name suggestions - Enhanced
 - [ ] Bulk copy functionality
 
 ### Technical Improvements
